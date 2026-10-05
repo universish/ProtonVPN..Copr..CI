@@ -1,0 +1,67 @@
+name: Proton VPN Automated COPR Builder
+
+on:
+  schedule:
+    # 09:30 UTC -> 10:30 / 11:30 Swedish Time (Öğle molasından önce)
+    # 14:30 UTC -> 15:30 / 16:30 Swedish Time (İş çıkışından önce)
+    - cron: '30 9,14 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-sync:
+    runs-on: ubuntu-latest
+    container:
+      image: fedora:44
+
+    steps:
+      - name: Install Build Dependencies & Tools
+        run: |
+          dnf install -y \
+            rpm-build \
+            rpmdevtools \
+            copr-cli \
+            git \
+            python3 \
+            python3-pip \
+            cpio \
+            curl \
+            glib2-devel
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure COPR Credentials
+        run: |
+          mkdir -p ~/.config
+          cat << 'EOF' > ~/.config/copr
+          [copr-cli]
+          login = ${{ secrets.COPR_LOGIN }}
+          username = universish
+          token = ${{ secrets.COPR_TOKEN }}
+          copr_url = https://copr.fedorainfracloud.org
+          EOF
+          chmod 600 ~/.config/copr
+
+      - name: Run Orchestrator (Version Bump, Fallback Loop, COPR Build)
+        run: |
+          chmod +x scripts/orchestrator.py
+          python3 scripts/orchestrator.py
+
+      - name: Commit Updated Version, Release and Specs
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add VERSION RELEASE_NUM specs/
+          if git diff --staged --quiet; then
+            echo "No changes to commit."
+          else
+            VERSION_VAL=$(cat VERSION)
+            RELEASE_VAL=$(cat RELEASE_NUM)
+            git commit -m "Auto-bump: ProtonVPN to ${VERSION_VAL}-${RELEASE_VAL} [skip ci]"
+            git push origin HEAD:${{ github.ref_name }}
+          fi
