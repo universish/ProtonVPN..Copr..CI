@@ -78,7 +78,7 @@ def build_srpm(spec_file):
     subprocess.check_call(cmd)
     srpms = [os.path.join("build_srpm/SRPMS", f) for f in os.listdir("build_srpm/SRPMS") if f.endswith(".src.rpm")]
     return srpms[0]
-
+            
 def submit_and_watch(srpm_path):
     cmd = ["copr-cli", "build", COPR_REPO, srpm_path, "--nowait"]
     for chroot in CHROOTS:
@@ -112,6 +112,12 @@ def main():
         except Exception as e:
             print(f"[CRITICAL] Error handling {pkg_name}: {e}")
             sys.exit(1)
-
+# Eğer spec içinde Source0 tanımlı değilse indirme yapmadan direkt SRPM üret
+        if pkg_name == "protonvpn-stable-release":
+            srpm = build_srpm(spec_file)
+        else:
+            version = fetch_package(pkg_name)
+            update_spec(spec_file, version)
+            srpm = build_srpm(spec_file)
 if __name__ == "__main__":
     main()
