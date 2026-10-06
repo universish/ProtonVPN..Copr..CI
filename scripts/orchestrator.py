@@ -20,13 +20,11 @@ SPEC_CANDIDATES = [
 ]
 
 def setup_upstream_repo():
-    """Proton resmi reposunu sistem yapılandırmasına ekler."""
     repo_content = """[protonvpn-fedora-stable]
 name=ProtonVPN Fedora Stable
 baseurl=https://repo.protonvpn.com/fedora-$releasever-stable/
+        https://repo.protonvpn.com/fedora-44-stable/
         https://repo.protonvpn.com/fedora-42-stable/
-        https://repo.protonvpn.com/fedora-41-stable/
-        https://repo.protonvpn.com/fedora-40-stable/
 enabled=1
 gpgcheck=0
 repo_gpgcheck=0
@@ -34,23 +32,14 @@ repo_gpgcheck=0
     os.makedirs("/etc/yum.repos.d", exist_ok=True)
     with open("/etc/yum.repos.d/protonvpn.repo", "w") as f:
         f.write(repo_content)
-    print("[*] Proton upstream repository configured with version fallbacks.")
+    print("[*] Proton upstream repository configured.")
 
 def fetch_upstream_rpm(pkg_name="proton-vpn-gnome-desktop"):
-    """Upstream RPM'i indirir, sürümünü okur ve specs/ altına hazırlar."""
     setup_upstream_repo()
     os.makedirs("specs", exist_ok=True)
 
     print(f"[*] Downloading latest upstream package: {pkg_name}...")
-    try:
-        subprocess.check_call([
-            "dnf", "download", "--refresh", "--destdir=specs", pkg_name
-        ])
-    except subprocess.CalledProcessError:
-        # dnf5 veya standart dnf komutu denemesi
-        subprocess.check_call([
-            "dnf", "download", "--destdir=specs", pkg_name
-        ])
+    subprocess.check_call(["dnf", "download", "--refresh", "--destdir=specs", pkg_name])
 
     downloaded = [
         f for f in os.listdir("specs")
@@ -60,18 +49,13 @@ def fetch_upstream_rpm(pkg_name="proton-vpn-gnome-desktop"):
         raise RuntimeError(f"Could not find downloaded RPM for {pkg_name} in specs/")
 
     downloaded_path = os.path.join("specs", downloaded[0])
-
-    # RPM başlığından gerçek sürüm bilgisini oku
     version = subprocess.check_output(
-        ["rpm", "-qp", "--qf", "%{VERSION}", downloaded_path],
-        text=True
+        ["rpm", "-qp", "--qf", "%{VERSION}", downloaded_path], text=True
     ).strip()
 
-    # SPEC dosyasının beklediği standart dosya adına kopyala
     target_upstream = os.path.join("specs", f"{pkg_name}-upstream.rpm")
     shutil.copyfile(downloaded_path, target_upstream)
     print(f"[+] Downloaded: {downloaded[0]} (Version: {version}) -> Ready as {target_upstream}")
-
     return version
 
 def get_tracking_state():
@@ -81,12 +65,9 @@ def get_tracking_state():
     if not os.path.exists("VERSION"):
         with open("VERSION", "w") as f:
             f.write(default_version)
-        print("[*] VERSION file initialized.")
-
     if not os.path.exists("RELEASE_NUM"):
         with open("RELEASE_NUM", "w") as f:
             f.write(str(default_release))
-        print("[*] RELEASE_NUM file initialized.")
 
     with open("VERSION", "r") as f:
         v = f.read().strip()
@@ -127,12 +108,7 @@ def build_srpm(spec_file):
     return srpms[0]
 
 def submit_and_watch_copr(srpm_path):
-    cmd = [
-        "copr-cli", "build",
-        COPR_REPO,
-        srpm_path,
-        "--nowait"
-    ]
+    cmd = ["copr-cli", "build", COPR_REPO, srpm_path, "--nowait"]
     for chroot in CHROOTS:
         cmd.extend(["-r", chroot])
 
@@ -141,13 +117,17 @@ def submit_and_watch_copr(srpm_path):
 
     match = re.search(r'Created builds:\s*([0-9]+)', out) or re.search(r'build/([0-9]+)', out) or re.search(r'([0-9]{6,})', out)
     if not match:
-        print("[!] Could not parse Build ID. Build accepted.")
         return True
 
     build_id = match.group(1)
-    print(f"[*] Watching COPR build ID: {build_id}...")
+    print(f"[*] Watching COPR build ID: {build_id} (Details: https://copr.fedorainfracloud.org/coprs/build/{build_id}/)...")
     result = subprocess.run(["copr-cli", "watch-build", build_id])
-    return result.returncode == 0
+
+    if result.returncode != 0:
+        print(f"\n[!] Build {build_id} failed. Check detailed mock logs at:")
+        print(f"    https://copr.fedorainfracloud.org/coprs/build/{build_id}/\n")
+        return False
+    return True
 
 def main():
     tracked_version, tracked_release = get_tracking_state()
@@ -158,7 +138,7 @@ def main():
         target_version = upstream_version
         target_release = 1
     else:
-        print(f"[*] Upstream version unchanged ({tracked_version}). Incrementing build release sequence.")
+        print(f"[*] Upstream version unchanged ({tracked_version}). Incrementing build sequence.")
         target_version = tracked_version
         target_release = tracked_release + 1
 
