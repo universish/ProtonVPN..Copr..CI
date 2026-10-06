@@ -55,9 +55,15 @@ jobs:
 
       - name: Commit Updated Version, Release and Specs
         run: |
+          # Container içi yetki uyuşmazlığını gider
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add VERSION RELEASE_NUM specs/
+          
+          # İndirilen binary rpm'leri hariç tut, yalnızca spec ve takip dosyalarını ekle
+          git add VERSION RELEASE_NUM specs/*.spec
+          
           if git diff --staged --quiet; then
             echo "No changes to commit."
           else
