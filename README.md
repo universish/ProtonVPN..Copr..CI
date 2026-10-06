@@ -97,13 +97,17 @@ To disable the COPR repository:
 sudo dnf copr disable universish/ProtonVPN..for..bye..DPI..and..Get..Lost..Fascism
 ```
 
-### 3. Target Platforms & Architectures
+----
+
+# Target Platforms & Architectures
 
 | Release | Architectures | Target Environments |
 | :--- | :--- | :--- |
 | **Fedora 44** | `x86_64`, `aarch64` | GNOME Desktop, KDE Plasma, CLI |
 | **Fedora Rawhide** | `x86_64`, `aarch64` | GNOME Desktop, Generic, CLI |
 
-### 4. License
+----
+
+# License
 * This packaging automation is provided under the [MIT License](https://github.com/universish/ProtonVPN..Copr..CI/blob/main/LICENSE).
 * Proton VPN software components retain their original upstream licenses (GPL-3.0-or-later).
