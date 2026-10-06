@@ -11,8 +11,8 @@ CHROOTS = [
     "fedora-rawhide-x86_64"
 ]
 
-# Bağımlılık hiyerarşisine göre derleme sırası
 PACKAGES_TO_PROCESS = [
+    ("protonvpn-stable-release", "specs/protonvpn-stable-release.spec"),
     ("proton-vpn-daemon", "specs/proton-vpn-daemon.spec"),
     ("proton-vpn-cli", "specs/proton-vpn-cli.spec"),
     ("proton-vpn-gtk-app", "specs/proton-vpn-gtk-app.spec"),
