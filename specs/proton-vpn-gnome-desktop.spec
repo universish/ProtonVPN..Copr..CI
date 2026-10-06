@@ -6,8 +6,8 @@ License:        GPL-3.0-or-later
 URL:            https://protonvpn.com/
 ExclusiveArch:  x86_64 aarch64
 
-# Resmi Proton deposundan upstream kaynak
-Source0:        https://repo.protonvpn.com/fedora-44-stable/protonvpn-stable-release/proton-vpn-gnome-desktop-%{version}.%{_arch}.rpm
+# scripts/orchestrator.py tarafından indirilen resmi upstream paketi
+Source0:        proton-vpn-gnome-desktop-upstream.rpm
 
 BuildRequires:  cpio
 BuildRequires:  rpm-build
@@ -30,30 +30,26 @@ Requires:       libappindicator-gtk3
 Requires:       gnome-shell-extension-appindicator
 Requires:       gnome-extensions-app
 
-# Otomatik GNOME uzantı aktivasyonu için şema
-Source1:        99-protonvpn-appindicator.gschema.override
-
 %description
 Official Proton VPN GUI desktop application client rebuilt for Fedora with
 out-of-the-box systemd-resolved DNS leak protection and automatic GNOME
 AppIndicator system integration.
 
 %prep
-# Boş prep adımı; kaynak RPM install aşamasında açılacaktır
 %setup -c -T
 
 %build
-# Derleme gerektirmez, ikili RPM paketi dönüştürülmektedir
+# İkili RPM içeriği paketlenmektedir
 
 %install
 rm -rf %{buildroot}
 mkdir -p %{buildroot}
 
-# Upstream RPM içeriğini dışa aktar
+# Upstream RPM içeriğini buildroot içine aç
 cd %{buildroot}
 rpm2cpio %{SOURCE0} | cpio -idmv
 
-# GNOME AppIndicator eklentisini sistem genelinde otomatik aktif eden GSchema override dosyasını ekle
+# GNOME AppIndicator eklentisini sistem genelinde otomatik aktif eden GSchema override dosyasını oluştur
 mkdir -p %{buildroot}%{_datadir}/glib-2.0/schemas
 cat << 'EOF' > %{buildroot}%{_datadir}/glib-2.0/schemas/99-protonvpn-appindicator.gschema.override
 [org.gnome.shell]
@@ -61,7 +57,6 @@ enabled-extensions=['appindicatorsupport@rgcjonas.gmail.com']
 EOF
 
 %post
-# GSchema önbelleğini yeniden derle (Uzantının otomatik devreye girmesi için)
 if [ -x %{_bindir}/glib-compile-schemas ]; then
     %{_bindir}/glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 fi
@@ -77,4 +72,4 @@ fi
 
 %changelog
 * Tue Oct 06 2026 Saffet Yavuz <universish@github> - 4.4.4-1
-- Automated build with full dependency pinning and auto-activated AppIndicator.
+- Automated build with local upstream payload ingestion.
