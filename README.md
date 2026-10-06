@@ -60,19 +60,25 @@ protonvpn-app
 
 (On GNOME sessions, restart your session or log out once if the tray icon does not appear immediately after the first install).
 
-### 2.3.2. CLI Application:
+### CLI Application:
 
 Log in to your account and connect:
 
-```
-protonvpn-cli login
-protonvpn-cli connect
+```bash
+protonvpn signin
+protonvpn connect
 ```
 
 Check status:
 
 ```
-protonvpn-cli status
+protonvpn status
+```
+
+Disconnect:
+
+```
+protonvpn disconnect
 ```
 
 ### 2.4. Uninstallation
@@ -93,6 +99,31 @@ To disable the COPR repository:
 
 ```
 sudo dnf copr disable universish/ProtonVPN..for..bye..DPI..and..Get..Lost..Fascism
+```
+
+### 2.5. Updating Packages
+
+To bypass local metadata caching and immediately pull new builds or packaging revisions (e.g., `<version>-1` to `<version>-2`):
+
+**2.5.1. `upgrade --refresh`:**
+
+```bash
+sudo dnf upgrade --refresh "proton-vpn*" "protonvpn*"
+```
+
+**2.5.2. If that doesn't work, follow these steps:**
+
+- Flush the cache:
+```
+sudo dnf clean all && sudo dnf makecache
+```
+- Install the CLI tool (it now comes directly from COPR):
+```
+sudo dnf install proton-vpn-cli
+```
+- Update or install the GUI application along with all its dependencies:
+```
+sudo dnf install proton-vpn-gnome-desktop proton-vpn-gtk-app
 ```
 
 ----
