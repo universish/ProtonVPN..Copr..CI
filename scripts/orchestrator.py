@@ -2,15 +2,16 @@
 import os
 import re
 import sys
+import json
+import gzip
 import shutil
+import urllib.request
 import subprocess
 
 COPR_REPO = "universish/ProtonVPN..for..bye..DPI..and..Get..Lost..Fascism"
 CHROOTS = [
     "fedora-44-x86_64",
-    "fedora-44-aarch64",
-    "fedora-rawhide-x86_64",
-    "fedora-rawhide-aarch64"
+    "fedora-rawhide-x86_64"
 ]
 
 SPEC_CANDIDATES = [
@@ -94,6 +95,8 @@ def update_spec_file(filepath, new_version, new_release):
 
 def build_srpm(spec_file):
     os.makedirs("build_srpm", exist_ok=True)
+    # Temiz build için önceki SRPM kalıntılarını temizle
+    shutil.rmtree("build_srpm/SRPMS", ignore_errors=True)
     cmd = [
         "rpmbuild",
         "-bs",
@@ -106,6 +109,34 @@ def build_srpm(spec_file):
     if not srpms:
         raise RuntimeError("No SRPM generated!")
     return srpms[0]
+
+def print_copr_failure_log(build_id):
+    """COPR API'sinden başarısız derleme logunu çekip ekrana yazdırır."""
+    print(f"\n[!] Fetching remote Mock failure logs for Build {build_id}...")
+    api_url = f"https://copr.fedorainfracloud.org/api_3/build/{build_id}"
+    try:
+        req = urllib.request.Request(api_url, headers={'User-Agent': 'ProtonVPN-CI'})
+        with urllib.request.urlopen(req) as resp:
+            data = json.loads(resp.read().decode())
+        
+        chroots_data = data.get("chroots", {})
+        for chroot, chroot_info in chroots_data.items():
+            if chroot_info.get("state") == "failed":
+                result_url = chroot_info.get("result_url")
+                if not result_url:
+                    continue
+                log_url = result_url.rstrip("/") + "/build.log.gz"
+                print(f"\n--- [FAILED CHROOT: {chroot}] Log: {log_url} ---")
+                try:
+                    log_req = urllib.request.Request(log_url, headers={'User-Agent': 'ProtonVPN-CI'})
+                    with urllib.request.urlopen(log_req) as log_resp:
+                        decompressed = gzip.decompress(log_resp.read()).decode(errors='replace')
+                        lines = decompressed.strip().split("\n")
+                        print("\n".join(lines[-40:]))
+                except Exception as log_err:
+                    print(f"Could not read compressed log: {log_err}")
+    except Exception as e:
+        print(f"Could not contact COPR API for debug logs: {e}")
 
 def submit_and_watch_copr(srpm_path):
     cmd = ["copr-cli", "build", COPR_REPO, srpm_path, "--nowait"]
@@ -120,12 +151,11 @@ def submit_and_watch_copr(srpm_path):
         return True
 
     build_id = match.group(1)
-    print(f"[*] Watching COPR build ID: {build_id} (Details: https://copr.fedorainfracloud.org/coprs/build/{build_id}/)...")
+    print(f"[*] Watching COPR build ID: {build_id}...")
     result = subprocess.run(["copr-cli", "watch-build", build_id])
 
     if result.returncode != 0:
-        print(f"\n[!] Build {build_id} failed. Check detailed mock logs at:")
-        print(f"    https://copr.fedorainfracloud.org/coprs/build/{build_id}/\n")
+        print_copr_failure_log(build_id)
         return False
     return True
 
