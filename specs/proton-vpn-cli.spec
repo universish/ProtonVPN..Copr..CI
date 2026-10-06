@@ -1,5 +1,9 @@
 %global debug_package %{nil}
+%global __brp_python_bytecompile %{nil}
+%global __brp_mangle_shebangs %{nil}
 %global _python_bytecompile_extra 0
+%define _unpackaged_files_terminate_build 0
+%define _missing_doc_files_terminate_build 0
 
 Name:           proton-vpn-cli
 Version:        1.0.5
@@ -36,10 +40,10 @@ mkdir -p %{buildroot}%{_docdir}/%{name}
 echo "Repackaged by universish ProtonVPN Copr CI" > %{buildroot}%{_docdir}/%{name}/README.copr
 
 cd %{_builddir}/%{name}-%{version}
-find %{buildroot} -type f -o -type l | sed "s|^%{buildroot}||" > files.list
+find %{buildroot} -not -type d | sed "s|^%{buildroot}||" | sort -u > files.list
 
 %files -f files.list
 
 %changelog
 * Tue Oct 06 2026 Saffet Yavuz <universish@github> - 1.0.5-1
-- Initial CLI packaging.
+- Initial CLI packaging with bytecompile bypass.
