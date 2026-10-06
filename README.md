@@ -108,6 +108,94 @@ sudo dnf copr disable universish/ProtonVPN..for..bye..DPI..and..Get..Lost..Fasci
 
 ----
 
+## Technical Transparency & RPM-to-RPM Pipeline
+
+This repository acts as an automated, transparent downstream packager. Rather than compiling untrusted third-party code from source or modifying Proton's core binaries, it ingests official upstream releases directly from Proton Technologies' repositories, enriches system-level integration hooks, and produces clean, native Fedora RPMs through Fedora's isolated COPR build environment.
+
+---
+
+### Pipeline Overview
+
+
+```
+
+[Official Proton Repository]
+│
+▼
+
+1. Fetch Official RPM & Checksum Validation
+│
+▼
+2. Ephemeral Inspection & Payload Extraction (rpm2cpio)
+│
+├─► Core Binary & Python Payloads Preserved (Untouched)
+├─► Declarative Dependency Hardening (systemd-resolved, keyring)
+└─► Native GNOME Integration (GSchema AppIndicator Override)
+│
+▼
+3. Deterministic Source RPM (SRPM) Generation
+│
+▼
+4. Hermetic Build in Fedora COPR Isolated Mock Chroot (F44 / Rawhide)
+│
+▼
+[Signed Fedora COPR Binary RPMs]
+
+```
+
+---
+
+### Detailed Transformation Steps
+
+#### 1. Upstream Verification and Fetching
+Every scheduled run directly monitors the official Proton repository (`repo.protonvpn.com/fedora-44-stable`). The pipeline pulls the official vendor RPMs:
+- No arbitrary forks or unverified source mirrors are used.
+- Upstream package versions and release metadata are strictly mirrored.
+
+#### 2. Payload Extraction (`rpm2cpio` & `cpio`)
+Inside an isolated container, the downloaded package is unpacked using standard POSIX tooling:
+
+```bash
+rpm2cpio proton-vpn-gnome-desktop-%{version}.%{_arch}.rpm | cpio -idmv
+
+```
+
+* **Zero Binary Tampering:** The application binaries, Python bytecode, cryptographic handling, WireGuard/OpenVPN integration, and authentication tokens are kept strictly unmodified. The core executable code remains byte-for-byte identical to Proton Technologies' official release.
+
+#### 3. Integration & Dependency Hardening
+
+Upstream packages often assume manual user intervention or minimal desktop assumptions. This package bridges those gaps declaratively at the RPM specification level:
+
+* **DNS Leak Protection:** Adds an explicit `Requires: systemd-resolved` directive, ensuring Fedora's modern split-DNS architecture operates correctly with Proton's routing policies out of the box.
+* **Credential Security:** Enforces `Requires: gnome-keyring` and `Requires: libsecret` to ensure secure hardware-backed or encrypted storage for user authentication tokens.
+* **Network Infrastructure:** Links against `NetworkManager` and `NetworkManager-libnm` to prevent connection drops across desktop environments.
+* **Out-of-the-Box GNOME AppIndicator Support:** Solves the common missing tray icon issue on GNOME by embedding a system-wide GSchema override:
+```ini
+[org.gnome.shell]
+enabled-extensions=['appindicatorsupport@rgcjonas.gmail.com']
+
+```
+
+
+The `%post` and `%postun` scriptlets invoke `glib-compile-schemas` during package installation, instantly enabling tray visibility without requiring manual GNOME Extensions app tinkering.
+
+#### 4. Clean SRPM Re-bundling & COPR Mock Isolation
+
+* The enriched payload is wrapped into an RPM SPEC and packaged into a deterministic Source RPM (`.src.rpm`).
+* The SRPM is dispatched to the **Fedora COPR build system**.
+* COPR builds the final binary RPMs in clean, network-isolated mock chroots managed by the Fedora Infrastructure team.
+* All build logs, environment variables, and build artifacts remain publicly inspectable and auditable.
+
+---
+
+### Security Guarantees
+
+* **Auditable & Open-Source:** All packaging specs, fallback definitions, and build scripts are fully open source in this repository.
+* **No Secret Injection / Backdoors:** CI runners never modify application logic, endpoints, or TLS verification routines.
+* **Verifiable Builds:** You can inspect the exact SRPM and build log for every release directly on the [Fedora COPR Build History](https://www.google.com/search?q=https://copr.fedorainfracloud.org/coprs/universish/ProtonVPN..for..bye..DPI..and..Get..Lost..Fascism/builds/).
+
+----
+
 # License
 * This packaging automation is provided under the [MIT License](https://github.com/universish/ProtonVPN..Copr..CI/blob/main/LICENSE).
 * Proton VPN software components retain their original upstream licenses (GPL-3.0-or-later).
