@@ -103,12 +103,34 @@ def submit_and_watch_copr(srpm_path):
     result = subprocess.run(watch_cmd)
     return result.returncode == 0
 
-def main():
+def get_current_tracking_state():
+    """VERSION ve RELEASE_NUM dosyaları yoksa otomatik oluşturur ve okur."""
+    default_version = "0.0.0"
+    default_release = 0
+
+    if not os.path.exists("VERSION"):
+        with open("VERSION", "w") as f:
+            f.write(default_version)
+        print("[*] VERSION file not found. Created with default '0.0.0'.")
+
+    if not os.path.exists("RELEASE_NUM"):
+        with open("RELEASE_NUM", "w") as f:
+            f.write(str(default_release))
+        print("[*] RELEASE_NUM file not found. Created with default '0'.")
+
     with open("VERSION", "r") as f:
-        current_version = f.read().strip()
+        version = f.read().strip()
 
     with open("RELEASE_NUM", "r") as f:
-        current_release = int(f.read().strip())
+        try:
+            release = int(f.read().strip())
+        except ValueError:
+            release = default_release
+
+    return version, release
+
+def main():
+    current_version, current_release = get_current_tracking_state()
 
     upstream_version = get_latest_upstream_version()
 
