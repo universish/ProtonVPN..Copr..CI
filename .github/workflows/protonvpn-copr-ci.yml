@@ -28,7 +28,8 @@ jobs:
             python3-pip \
             cpio \
             curl \
-            glib2-devel
+            glib2-devel \
+            dnf-plugins-core
 
       - name: Checkout Repository
         uses: actions/checkout@v4
