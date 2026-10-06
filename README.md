@@ -1,5 +1,3 @@
-# ProtonVPN..Copr..CI
-
 # Proton VPN for Fedora (Automated COPR Packaging CI)
 
 [![ProtonVPN Copr CI](https://github.com/universish/ProtonVPN..Copr..CI/actions/workflows/protonvpn-copr-ci.yml/badge.svg)](https://github.com/universish/ProtonVPN..Copr..CI/actions)
@@ -193,6 +191,30 @@ The `%post` and `%postun` scriptlets invoke `glib-compile-schemas` during packag
 * **Auditable & Open-Source:** All packaging specs, fallback definitions, and build scripts are fully open source in this repository.
 * **No Secret Injection / Backdoors:** CI runners never modify application logic, endpoints, or TLS verification routines.
 * **Verifiable Builds:** You can inspect the exact SRPM and build log for every release directly on the [Fedora COPR Build History](https://www.google.com/search?q=https://copr.fedorainfracloud.org/coprs/universish/ProtonVPN..for..bye..DPI..and..Get..Lost..Fascism/builds/).
+
+----
+
+## Mission & Legal-Normative Basis
+
+This project exists to guarantee unhindered access to open information, private communications, and secure network infrastructure in environments subject to arbitrary state censorship, pervasive surveillance, and digital authoritarianism.
+
+### Human Rights & Legal Framework
+Access to an uncensored internet and cryptographic privacy tools is a foundational prerequisite for exercising fundamental rights guaranteed under international law:
+* **Article 19 of the Universal Declaration of Human Rights (UDHR):** *"Everyone has the right to freedom of opinion and expression; this right includes freedom to hold opinions without interference and to seek, receive and impart information and ideas through any media and regardless of frontiers."*
+* **Article 17 of the International Covenant on Civil and Political Rights (ICCPR):** The protection of individuals against unlawful or arbitrary interference with privacy and correspondence.
+* **UN General Assembly Resolution 68/167:** Reaffirming that the same rights individuals have offline must also be protected online, specifically privacy and freedom of expression.
+
+### Threat Model: Deep Packet Inspection (DPI) & State Interference
+Authoritarian governance frameworks and state-aligned telecommunications monopolies routinely weaponize:
+* **Deep Packet Inspection (DPI):** Middleboxes analyzing Layer 7 payload headers, TLS ClientHello handshakes, and SNI (Server Name Indication) fields to throttle, tamper with, or outright sever independent communication channels.
+* **DNS Hijacking & Cache Poisoning:** Forcing domestic recursive resolvers to redirect or block legitimate internet endpoints.
+* **Administrative & Repository Blacklisting:** Restricting access to standard binary repositories, download mirrors, and official installation vectors to prevent citizens from obtaining cryptographic defense software.
+
+### Operational Purpose
+By maintaining an automated, continuous, and auditable downstream packaging pipeline on Fedora's official COPR infrastructure, this repository ensures that journalists, researchers, engineers, and everyday citizens under restrictive regimes can:
+1. **Bootstrap Privacy Tools Seamlessly:** Deploy official Proton VPN clients and stealth-routing configurations via standard native package managers (`dnf`) without relying on blocked upstream landing pages.
+2. **Prevent Routing & DNS Leakage:** Enforce strict split-DNS routing via native `systemd-resolved` integration, rendering ISP-level DNS manipulation ineffective.
+3. **Sustain Digital Self-Defense:** Maintain reproducible access to authenticated, end-to-end encrypted tunnels designed to bypass DPI middleboxes and resist automated packet classification.
 
 ----
 
