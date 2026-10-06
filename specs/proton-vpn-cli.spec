@@ -1,36 +1,45 @@
+%global debug_package %{nil}
+%global _python_bytecompile_extra 0
+
 Name:           proton-vpn-cli
-Version:        4.4.4
+Version:        1.0.5
 Release:        1%{?dist}
 Summary:        Proton VPN Command Line Interface
 License:        GPL-3.0-or-later
 URL:            https://protonvpn.com/
-ExclusiveArch:  x86_64 aarch64
+BuildArch:      noarch
 
-Source0:        https://repo.protonvpn.com/fedora-44-stable/protonvpn-stable-release/proton-vpn-cli-%{version}.%{_arch}.rpm
+Source0:        proton-vpn-cli-upstream.rpm
 
 BuildRequires:  cpio
 BuildRequires:  rpm-build
 
-Requires:       gnome-keyring
-Requires:       NetworkManager
+Requires:       proton-vpn-daemon
 Requires:       python3
-Requires:       libsecret
+Requires:       gnome-keyring
 
 %description
-Proton VPN official CLI client rebuilt for Fedora environments.
+Official CLI client for Proton VPN.
 
 %prep
 %setup -c -T
+
+%build
 
 %install
 rm -rf %{buildroot}
 mkdir -p %{buildroot}
 cd %{buildroot}
-rpm2cpio %{SOURCE0} | cpio -idmv
+rpm2cpio %{SOURCE0} | cpio -idmv || :
 
-%files
-/*
+mkdir -p %{buildroot}%{_docdir}/%{name}
+echo "Repackaged by universish ProtonVPN Copr CI" > %{buildroot}%{_docdir}/%{name}/README.copr
+
+cd %{_builddir}/%{name}-%{version}
+find %{buildroot} -type f -o -type l | sed "s|^%{buildroot}||" > files.list
+
+%files -f files.list
 
 %changelog
-* Tue Oct 06 2026 Saffet Yavuz <universish@github> - 4.4.4-1
-- Automated CLI packaging.
+* Tue Oct 06 2026 Saffet Yavuz <universish@github> - 1.0.5-1
+- Initial CLI packaging.
