@@ -2,10 +2,7 @@
 import os
 import re
 import sys
-import json
-import gzip
 import shutil
-import urllib.request
 import subprocess
 
 COPR_REPO = "universish/ProtonVPN..for..bye..DPI..and..Get..Lost..Fascism"
@@ -14,10 +11,12 @@ CHROOTS = [
     "fedora-rawhide-x86_64"
 ]
 
-SPEC_CANDIDATES = [
-    "specs/proton-vpn-gnome-desktop.spec",
-    "specs/proton-vpn-gnome-desktop-compat.spec",
-    "specs/proton-vpn-gnome-desktop-minimal.spec"
+# Bağımlılık hiyerarşisine göre derleme sırası
+PACKAGES_TO_PROCESS = [
+    ("proton-vpn-daemon", "specs/proton-vpn-daemon.spec"),
+    ("proton-vpn-cli", "specs/proton-vpn-cli.spec"),
+    ("proton-vpn-gtk-app", "specs/proton-vpn-gtk-app.spec"),
+    ("proton-vpn-gnome-desktop", "specs/proton-vpn-gnome-desktop.spec")
 ]
 
 def setup_upstream_repo():
@@ -33,13 +32,10 @@ repo_gpgcheck=0
     os.makedirs("/etc/yum.repos.d", exist_ok=True)
     with open("/etc/yum.repos.d/protonvpn.repo", "w") as f:
         f.write(repo_content)
-    print("[*] Proton upstream repository configured.")
+    print("[*] Proton upstream repo active on runner.")
 
-def fetch_upstream_rpm(pkg_name="proton-vpn-gnome-desktop"):
-    setup_upstream_repo()
-    os.makedirs("specs", exist_ok=True)
-
-    print(f"[*] Downloading latest upstream package: {pkg_name}...")
+def fetch_package(pkg_name):
+    print(f"\n[*] Fetching upstream RPM: {pkg_name}...")
     subprocess.check_call(["dnf", "download", "--refresh", "--destdir=specs", pkg_name])
 
     downloaded = [
@@ -47,7 +43,7 @@ def fetch_upstream_rpm(pkg_name="proton-vpn-gnome-desktop"):
         if f.startswith(pkg_name) and f.endswith(".rpm") and not f.endswith("-upstream.rpm")
     ]
     if not downloaded:
-        raise RuntimeError(f"Could not find downloaded RPM for {pkg_name} in specs/")
+        raise RuntimeError(f"Could not find downloaded RPM for {pkg_name}")
 
     downloaded_path = os.path.join("specs", downloaded[0])
     version = subprocess.check_output(
@@ -56,46 +52,21 @@ def fetch_upstream_rpm(pkg_name="proton-vpn-gnome-desktop"):
 
     target_upstream = os.path.join("specs", f"{pkg_name}-upstream.rpm")
     shutil.copyfile(downloaded_path, target_upstream)
-    print(f"[+] Downloaded: {downloaded[0]} (Version: {version}) -> Ready as {target_upstream}")
+    os.remove(downloaded_path)  # Geçici indirilen dosyayı sil
+    print(f"[+] Ingested {pkg_name} version: {version}")
     return version
 
-def get_tracking_state():
-    default_version = "0.0.0"
-    default_release = 0
-
-    if not os.path.exists("VERSION"):
-        with open("VERSION", "w") as f:
-            f.write(default_version)
-    if not os.path.exists("RELEASE_NUM"):
-        with open("RELEASE_NUM", "w") as f:
-            f.write(str(default_release))
-
-    with open("VERSION", "r") as f:
-        v = f.read().strip()
-    with open("RELEASE_NUM", "r") as f:
-        try:
-            r = int(f.read().strip())
-        except ValueError:
-            r = default_release
-
-    return v, r
-
-def update_spec_file(filepath, new_version, new_release):
-    if not os.path.exists(filepath):
+def update_spec(spec_path, version):
+    if not os.path.exists(spec_path):
         return
-    with open(filepath, 'r') as f:
+    with open(spec_path, "r") as f:
         content = f.read()
-
-    content = re.sub(r'^(Version:\s*).*$', rf'\g<1>{new_version}', content, flags=re.MULTILINE)
-    content = re.sub(r'^(Release:\s*)[0-9]+', rf'\g<1>{new_release}', content, flags=re.MULTILINE)
-
-    with open(filepath, 'w') as f:
+    content = re.sub(r'^(Version:\s*).*$', rf'\g<1>{version}', content, flags=re.MULTILINE)
+    with open(spec_path, "w") as f:
         f.write(content)
-    print(f"[*] Updated {filepath} -> Version: {new_version}, Release: {new_release}")
 
 def build_srpm(spec_file):
     os.makedirs("build_srpm", exist_ok=True)
-    # Temiz build için önceki SRPM kalıntılarını temizle
     shutil.rmtree("build_srpm/SRPMS", ignore_errors=True)
     cmd = [
         "rpmbuild",
@@ -106,100 +77,41 @@ def build_srpm(spec_file):
     ]
     subprocess.check_call(cmd)
     srpms = [os.path.join("build_srpm/SRPMS", f) for f in os.listdir("build_srpm/SRPMS") if f.endswith(".src.rpm")]
-    if not srpms:
-        raise RuntimeError("No SRPM generated!")
     return srpms[0]
 
-def print_copr_failure_log(build_id):
-    """COPR API'sinden başarısız derleme logunu çekip ekrana yazdırır."""
-    print(f"\n[!] Fetching remote Mock failure logs for Build {build_id}...")
-    api_url = f"https://copr.fedorainfracloud.org/api_3/build/{build_id}"
-    try:
-        req = urllib.request.Request(api_url, headers={'User-Agent': 'ProtonVPN-CI'})
-        with urllib.request.urlopen(req) as resp:
-            data = json.loads(resp.read().decode())
-        
-        chroots_data = data.get("chroots", {})
-        for chroot, chroot_info in chroots_data.items():
-            if chroot_info.get("state") == "failed":
-                result_url = chroot_info.get("result_url")
-                if not result_url:
-                    continue
-                log_url = result_url.rstrip("/") + "/build.log.gz"
-                print(f"\n--- [FAILED CHROOT: {chroot}] Log: {log_url} ---")
-                try:
-                    log_req = urllib.request.Request(log_url, headers={'User-Agent': 'ProtonVPN-CI'})
-                    with urllib.request.urlopen(log_req) as log_resp:
-                        decompressed = gzip.decompress(log_resp.read()).decode(errors='replace')
-                        lines = decompressed.strip().split("\n")
-                        print("\n".join(lines[-40:]))
-                except Exception as log_err:
-                    print(f"Could not read compressed log: {log_err}")
-    except Exception as e:
-        print(f"Could not contact COPR API for debug logs: {e}")
-
-def submit_and_watch_copr(srpm_path):
+def submit_and_watch(srpm_path):
     cmd = ["copr-cli", "build", COPR_REPO, srpm_path, "--nowait"]
     for chroot in CHROOTS:
         cmd.extend(["-r", chroot])
 
     out = subprocess.check_output(cmd, text=True)
-    print(f"[+] COPR Build submitted:\n{out}")
-
     match = re.search(r'Created builds:\s*([0-9]+)', out) or re.search(r'build/([0-9]+)', out) or re.search(r'([0-9]{6,})', out)
-    if not match:
-        return True
-
     build_id = match.group(1)
-    print(f"[*] Watching COPR build ID: {build_id}...")
-    result = subprocess.run(["copr-cli", "watch-build", build_id])
-
-    if result.returncode != 0:
-        print_copr_failure_log(build_id)
-        return False
-    return True
+    print(f"[*] Watching build ID: {build_id}...")
+    res = subprocess.run(["copr-cli", "watch-build", build_id])
+    return res.returncode == 0
 
 def main():
-    tracked_version, tracked_release = get_tracking_state()
-    upstream_version = fetch_upstream_rpm("proton-vpn-gnome-desktop")
+    setup_upstream_repo()
+    os.makedirs("specs", exist_ok=True)
 
-    if upstream_version != tracked_version:
-        print(f"[*] New upstream version detected: {upstream_version} (tracked: {tracked_version})")
-        target_version = upstream_version
-        target_release = 1
-    else:
-        print(f"[*] Upstream version unchanged ({tracked_version}). Incrementing build sequence.")
-        target_version = tracked_version
-        target_release = tracked_release + 1
-
-    build_success = False
-    for spec_file in SPEC_CANDIDATES:
+    for pkg_name, spec_file in PACKAGES_TO_PROCESS:
         if not os.path.exists(spec_file):
+            print(f"[!] Warning: {spec_file} does not exist. Skipping.")
             continue
-        print(f"\n[===] Attempting build with SPEC: {spec_file} [===]")
-        update_spec_file(spec_file, target_version, target_release)
-        
-        try:
-            srpm = build_srpm(spec_file)
-            success = submit_and_watch_copr(srpm)
-            if success:
-                print(f"[SUCCESS] Build passed using {spec_file}!")
-                build_success = True
-                break
-            else:
-                print(f"[FAIL] COPR build failed with {spec_file}. Cascading to fallback spec...")
-        except Exception as e:
-            print(f"[ERROR] Build failed for {spec_file}: {e}")
 
-    if build_success:
-        with open("VERSION", "w") as f:
-            f.write(target_version)
-        with open("RELEASE_NUM", "w") as f:
-            f.write(str(target_release))
-        sys.exit(0)
-    else:
-        print("[CRITICAL] All candidate SPEC builds failed!")
-        sys.exit(1)
+        try:
+            version = fetch_package(pkg_name)
+            update_spec(spec_file, version)
+            srpm = build_srpm(spec_file)
+            print(f"[*] Submitting {pkg_name} ({version}) to COPR...")
+            if not submit_and_watch(srpm):
+                print(f"[ERROR] Build failed for {pkg_name}!")
+                sys.exit(1)
+            print(f"[SUCCESS] {pkg_name} successfully built and signed on COPR!")
+        except Exception as e:
+            print(f"[CRITICAL] Error handling {pkg_name}: {e}")
+            sys.exit(1)
 
 if __name__ == "__main__":
     main()
