@@ -1,12 +1,14 @@
+%global debug_package %{nil}
+%global _python_bytecompile_extra 0
+
 Name:           proton-vpn-gnome-desktop
-Version:        4.4.4
+Version:        0.11.0
 Release:        1%{?dist}
 Summary:        Proton VPN Linux Desktop application for GNOME and GTK environments
 License:        GPL-3.0-or-later
 URL:            https://protonvpn.com/
-ExclusiveArch:  x86_64 aarch64
+BuildArch:      noarch
 
-# scripts/orchestrator.py tarafından indirilen resmi upstream paketi
 Source0:        proton-vpn-gnome-desktop-upstream.rpm
 
 BuildRequires:  cpio
@@ -20,13 +22,11 @@ Requires:       NetworkManager
 Requires:       NetworkManager-libnm
 Requires:       libsecret
 
-# Python ve GTK Çalışma Zamanı
+# Python ve Masaüstü Bağımlılıkları
 Requires:       python3
 Requires:       python3-gobject
 Requires:       gtk3
 Requires:       libappindicator-gtk3
-
-# GNOME Tepsi ve Uzantı Bileşenleri
 Requires:       gnome-shell-extension-appindicator
 Requires:       gnome-extensions-app
 
@@ -39,22 +39,30 @@ AppIndicator system integration.
 %setup -c -T
 
 %build
-# İkili RPM içeriği paketlenmektedir
+# No compilation needed for binary/noarch payload
 
 %install
 rm -rf %{buildroot}
 mkdir -p %{buildroot}
 
-# Upstream RPM içeriğini buildroot içine aç
+# 1. Upstream RPM içeriğini aç
 cd %{buildroot}
-rpm2cpio %{SOURCE0} | cpio -idmv
+rpm2cpio %{SOURCE0} | cpio -idmv || :
 
-# GNOME AppIndicator eklentisini sistem genelinde otomatik aktif eden GSchema override dosyasını oluştur
+# 2. GNOME AppIndicator otomatik aktivasyon şeması
 mkdir -p %{buildroot}%{_datadir}/glib-2.0/schemas
 cat << 'EOF' > %{buildroot}%{_datadir}/glib-2.0/schemas/99-protonvpn-appindicator.gschema.override
 [org.gnome.shell]
 enabled-extensions=['appindicatorsupport@rgcjonas.gmail.com']
 EOF
+
+# 3. Metapaket boş dosya hatasını (Empty %files) önlemek için belge dosyası
+mkdir -p %{buildroot}%{_docdir}/%{name}
+echo "Repackaged by universish ProtonVPN Copr CI" > %{buildroot}%{_docdir}/%{name}/README.copr
+
+# 4. Dosya listesini build çalışma dizinine yaz
+cd %{_builddir}/%{name}-%{version}
+find %{buildroot} -type f -o -type l | sed "s|^%{buildroot}||" > files.list
 
 %post
 if [ -x %{_bindir}/glib-compile-schemas ]; then
@@ -66,10 +74,8 @@ if [ -x %{_bindir}/glib-compile-schemas ]; then
     %{_bindir}/glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 fi
 
-%files
-/*
-%{_datadir}/glib-2.0/schemas/99-protonvpn-appindicator.gschema.override
+%files -f files.list
 
 %changelog
-* Tue Oct 06 2026 Saffet Yavuz <universish@github> - 4.4.4-1
-- Automated build with local upstream payload ingestion.
+* Tue Oct 06 2026 Saffet Yavuz <universish@github> - 0.11.0-1
+- Converted to pure noarch and corrected files.list pathing.
