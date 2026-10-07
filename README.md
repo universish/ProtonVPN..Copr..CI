@@ -1,12 +1,47 @@
-# Proton VPN for Fedora (Automated COPR Packaging CI)
+<div align="center">
 
-[![ProtonVPN Copr CI](https://github.com/universish/ProtonVPN..Copr..CI/actions/workflows/protonvpn-copr-ci.yml/badge.svg)](https://github.com/universish/ProtonVPN..Copr..CI/actions)
+# 🛡️ Proton VPN for Fedora
+### ⚡ Automated Downstream COPR Packaging CI/CD Pipeline ⚡
 
-[COPR Build Status](https://copr.fedorainfracloud.org/coprs/universish/ProtonVPN..for..bye..DPI..and..Get..Lost..Fascism/)
+*Hermetic RPM Builds • Zero-Touch GNOME Integration • Active DPI Evasion*
+
+<br/>
+
+> *"Uncensored, reproducible, and cryptographically secure Proton VPN packaging for Fedora 44 & Rawhide."*
+
+<br/>
+
+<a href="https://github.com/universish/ProtonVPN..Copr..CI/actions">
+  <img src="https://img.shields.io/github/actions/workflow/status/universish/ProtonVPN..Copr..CI/protonvpn-copr-ci.yml?style=flat-square&logo=githubactions&logoColor=white&label=CI%2FCD%20Builder" alt="CI/CD Status">
+</a>
+<a href="https://copr.fedorainfracloud.org/coprs/universish/ProtonVPN..for..bye..DPI..and..Get..Lost..Fascism/">
+  <img src="https://img.shields.io/badge/Fedora%20COPR-Active%20Repo-51A2DA?style=flat-square&logo=fedora&logoColor=white" alt="Fedora COPR">
+</a>
+<a href="https://copr.fedorainfracloud.org/coprs/universish/ProtonVPN..for..bye..DPI..and..Get..Lost..Fascism/">
+  <img src="https://img.shields.io/badge/Platform-Fedora%2044%20%7C%20Rawhide-294172?style=flat-square&logo=fedora&logoColor=white" alt="Platform">
+</a>
+<a href="https://copr.fedorainfracloud.org/coprs/universish/ProtonVPN..for..bye..DPI..and..Get..Lost..Fascism/">
+  <img src="https://img.shields.io/badge/Arch-x86__64%20%7C%20aarch64-2d333b?style=flat-square&logo=linux&logoColor=white" alt="Architectures">
+</a>
+<a href="https://protonvpn.com/">
+  <img src="https://img.shields.io/badge/Anti--DPI-Bypass%20Enforced-6d4aff?style=flat-square&logo=protonvpn&logoColor=white" alt="Anti-DPI">
+</a>
+
+</div>
+
+---
 
 Automated downstream RPM packaging pipeline for official Proton VPN desktop and CLI clients targeting **Fedora 44** and **Fedora Rawhide** on both **x86_64** and **aarch64 (ARM64)** architectures.
 
 Designed to eliminate DPI blocks, enforce strict systemd-resolved DNS privacy, automatically resolve dependencies, and automatically enable the required GNOME Shell AppIndicator extension out of the box.
+
+```text
+  ____            _              __     ______  _   _ 
+ |  _ \ _ __ ___ | |_ ___  _ __  \ \   / /  _ \| \ | |
+ | |_) | '__/ _ \| __/ _ \| '_ \  \ \ / /| |_) |  \| |  [Fedora COPR CI]
+ |  __/| | | (_) | || (_) | | | |  \ V / |  __/| |\  |  Autonomous Downstream
+ |_|   |_|  \___/ \__\___/|_| |_|   \_/  |_|   |_| \_|  Packaging Engine
+```
 
 ---
 
