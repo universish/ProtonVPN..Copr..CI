@@ -1,7 +1,7 @@
 %global debug_package %{nil}
 
 Name:           protonvpn-stable-release
-Version:        1.0.4
+Version:        1.0.5
 Release:        1%{?dist}
 Summary:        Proton VPN repository configuration and GPG keys (DPI-Bypass Safe Edition)
 License:        GPL-3.0-or-later

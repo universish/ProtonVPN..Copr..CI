@@ -6,7 +6,7 @@
 %define _missing_doc_files_terminate_build 0
 
 Name:           proton-vpn-gtk-app
-Version:        4.18.7
+Version:        4.18.8
 Release:        1%{?dist}
 Summary:        Proton VPN GTK Graphical Application
 License:        GPL-3.0-or-later
