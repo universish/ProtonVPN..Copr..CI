@@ -1,4 +1,4 @@
-&lt;div align=&quot;center&quot;&gt;
+<div align="center">
 
 # 🛡️ Proton VPN for Fedora
 ### ⚡ Automated Downstream COPR Packaging CI/CD Pipeline ⚡
@@ -11,23 +11,25 @@
 
 <br/>
 
-&lt;a href=&quot;https://github.com/universish/ProtonVPN..Copr..CI/actions&quot;&gt;
-  &lt;img src=&quot;https://img.shields.io/github/actions/workflow/status/universish/ProtonVPN..Copr..CI/protonvpn-copr-ci.yml?style=flat-square&amp;logo=githubactions&amp;logoColor=white&amp;label=CI%2FCD%20Builder&quot; alt=&quot;CI/CD Status&quot;&gt;
-&lt;/a&gt;
-&lt;a href=&quot;https://copr.fedorainfracloud.org/coprs/universish/ProtonVPN..for..bye..DPI..and..Get..Lost..Fascism/&quot;&gt;
-  &lt;img src=&quot;https://img.shields.io/badge/Fedora%20COPR-Active%20Repo-51A2DA?style=flat-square&amp;logo=fedora&amp;logoColor=white&quot; alt=&quot;Fedora COPR&quot;&gt;
-&lt;/a&gt;
-&lt;a href=&quot;https://copr.fedorainfracloud.org/coprs/universish/ProtonVPN..for..bye..DPI..and..Get..Lost..Fascism/&quot;&gt;
-  &lt;img src=&quot;https://img.shields.io/badge/Platform-Fedora%2044%20%7C%20Rawhide-294172?style=flat-square&amp;logo=fedora&amp;logoColor=white&quot; alt=&quot;Platform&quot;&gt;
-&lt;/a&gt;
-&lt;a href=&quot;https://copr.fedorainfracloud.org/coprs/universish/ProtonVPN..for..bye..DPI..and..Get..Lost..Fascism/&quot;&gt;
-  &lt;img src=&quot;https://img.shields.io/badge/Arch-x86__64%20%7C%20aarch64-2d333b?style=flat-square&amp;logo=linux&amp;logoColor=white&quot; alt=&quot;Architectures&quot;&gt;
-&lt;/a&gt;
-&lt;a href=&quot;https://protonvpn.com/&quot;&gt;
-  &lt;img src=&quot;https://img.shields.io/badge/Anti--DPI-Bypass%20Enforced-6d4aff?style=flat-square&amp;logo=protonvpn&amp;logoColor=white&quot; alt=&quot;Anti-DPI&quot;&gt;
-&lt;/a&gt;
+<a href="https://github.com/universish/ProtonVPN..Copr..CI/actions">
+  <img src="https://img.shields.io/github/actions/workflow/status/universish/ProtonVPN..Copr..CI/protonvpn-copr-ci.yml?style=flat-square&logo=githubactions&logoColor=white&label=CI%2FCD%20Builder" alt="CI/CD Status">
+</a>
+<a href="https://copr.fedorainfracloud.org/coprs/universish/ProtonVPN..for..bye..DPI..and..Get..Lost..Fascism/">
+  <img src="https://img.shields.io/badge/Fedora%20COPR-Active%20Repo-51A2DA?style=flat-square&logo=fedora&logoColor=white" alt="Fedora COPR">
+</a>
+<a href="https://copr.fedorainfracloud.org/coprs/universish/ProtonVPN..for..bye..DPI..and..Get..Lost..Fascism/">
+  <img src="https://img.shields.io/badge/Platform-Fedora%2044%20%7C%20Rawhide-294172?style=flat-square&logo=fedora&logoColor=white" alt="Platform">
+</a>
+<a href="https://copr.fedorainfracloud.org/coprs/universish/ProtonVPN..for..bye..DPI..and..Get..Lost..Fascism/">
+  <img src="https://img.shields.io/badge/Arch-x86__64%20%7C%20aarch64-2d333b?style=flat-square&logo=linux&logoColor=white" alt="Architectures">
+</a>
+<a href="https://protonvpn.com/">
+  <img src="https://img.shields.io/badge/Anti--DPI-Bypass%20Enforced-6d4aff?style=flat-square&logo=protonvpn&logoColor=white" alt="Anti-DPI">
+</a>
 
-&lt;/div&gt;
+</div>
+
+---
 
 ---
 
