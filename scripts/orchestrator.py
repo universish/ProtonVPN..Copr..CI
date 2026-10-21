@@ -14,13 +14,25 @@ CHROOTS = [
     "fedora-rawhide-x86_64"
 ]
 
-# Bağımlılık zinciri sırası
+# Bağımlılık zinciri sırası (En alttan en üste doğru)
 PACKAGES_TO_PROCESS = [
     ("protonvpn-stable-release", "specs/protonvpn-stable-release.spec"),
+    ("python3-proton-core", "specs/python3-proton-core.spec"),
+    ("python3-proton-keyring-linux", "specs/python3-proton-keyring-linux.spec"),
+    (
+        "python3-proton-vpn-network-manager",
+        "specs/python3-proton-vpn-network-manager.spec",
+    ),
+    (
+        "python3-proton-vpn-local-agent",
+        "specs/python3-proton-vpn-local-agent.spec",
+    ),
+    ("python3-proton-vpn-lib", "specs/python3-proton-vpn-lib.spec"),
+    ("python3-proton-vpn-api-core", "specs/python3-proton-vpn-api-core.spec"),
     ("proton-vpn-daemon", "specs/proton-vpn-daemon.spec"),
     ("proton-vpn-cli", "specs/proton-vpn-cli.spec"),
     ("proton-vpn-gtk-app", "specs/proton-vpn-gtk-app.spec"),
-    ("proton-vpn-gnome-desktop", "specs/proton-vpn-gnome-desktop.spec")
+    ("proton-vpn-gnome-desktop", "specs/proton-vpn-gnome-desktop.spec"),
 ]
 
 def setup_upstream_repo():
