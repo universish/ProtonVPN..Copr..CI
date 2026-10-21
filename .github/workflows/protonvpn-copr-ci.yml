@@ -24,7 +24,6 @@ jobs:
       - name: Check Upstream Version
         id: compare
         run: |
-          # ProtonVPN upstream deposunu geçici olarak ekle
           cat << 'EOF' > /etc/yum.repos.d/protonvpn.repo
           [protonvpn-fedora-stable]
           name=ProtonVPN Fedora Stable
@@ -33,22 +32,32 @@ jobs:
           gpgcheck=0
           EOF
           
-          # Upstream'deki en son sürümü bul
-          UPSTREAM_VERSION=$(dnf repoquery --qf "%{version}" proton-vpn-gnome-desktop | sort -V | tail -n 1)
-          UPSTREAM_VERSION=$(dnf repoquery --qf "%{version}" proton-vpn-gtk-app | sort -V | tail -n 1)
+          # Tüm zincirdeki paketlerin sürüm ve release bilgilerinden ortak bir parmak izi (hash) üret
+          UPSTREAM_HASH=$(dnf repoquery --disablerepo="*" --enablerepo="protonvpn-fedora-stable" --qf "%{name}-%{version}-%{release}\n" \
+            protonvpn-stable-release \
+            python3-proton-core \
+            python3-proton-keyring-linux \
+            python3-proton-vpn-network-manager \
+            python3-proton-vpn-local-agent \
+            python3-proton-vpn-lib \
+            python3-proton-vpn-api-core \
+            proton-vpn-daemon \
+            proton-vpn-cli \
+            proton-vpn-gtk-app \
+            proton-vpn-gnome-desktop \
+            | sort | sha256sum | awk '{print $1}')
           
-          # Yereldeki son paketlenmiş sürümü oku (dosya yoksa 0 kabul et)
-          LOCAL_VERSION=$(cat VERSION 2>/dev/null || echo "0")
+          LOCAL_HASH=$(cat VERSION 2>/dev/null || echo "0")
           
-          echo "Upstream Version: $UPSTREAM_VERSION"
-          echo "Local Version: $LOCAL_VERSION"
+          echo "Upstream Fingerprint: $UPSTREAM_HASH"
+          echo "Local Fingerprint:    $LOCAL_HASH"
           
-          # Karşılaştırma yap
-          if [ "$UPSTREAM_VERSION" != "$LOCAL_VERSION" ] && [ -n "$UPSTREAM_VERSION" ]; then
-            echo "Yeni sürüm yayında! İkinci aşamaya geçiliyor..."
+          if [ "$UPSTREAM_HASH" != "$LOCAL_HASH" ] && [ -n "$UPSTREAM_HASH" ]; then
+            echo "Güncelleme bulundu! Pipeline çalıştırılıyor..."
             echo "new_version_found=true" >> $GITHUB_OUTPUT
+            echo "upstream_hash=$UPSTREAM_HASH" >> $GITHUB_OUTPUT
           else
-            echo "Yeni güncelleme yok. İş akışı burada sonlandırılıyor."
+            echo "Herhangi bir pakette değişiklik yok."
             echo "new_version_found=false" >> $GITHUB_OUTPUT
           fi
 
