@@ -2,16 +2,59 @@ name: Proton VPN Automated COPR Builder
 
 on:
   schedule:
-    # 09:30 UTC -> 10:30 / 11:30 Swedish Time (Öğle molasından önce)
-    # 14:30 UTC -> 15:30 / 16:30 Swedish Time (İş çıkışından önce)
-    - cron: '30 9,14 * * *'
+    # ProtonVPN Merkezi Cenevre Saati (CET): Öğle 12:00 (11:00 UTC) ve İş Çıkışı 17:00 (16:00 UTC)
+    - cron: '0 11,16 * * *'
   workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  build-and-sync:
+  # 1. AŞAMA: Güncel Sürüm Kontrolü
+  check-update:
+    runs-on: ubuntu-latest
+    container:
+      image: fedora:44
+    outputs:
+      new_version_found: ${{ steps.compare.outputs.new_version_found }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Check Upstream Version
+        id: compare
+        run: |
+          # ProtonVPN upstream deposunu geçici olarak ekle
+          cat << 'EOF' > /etc/yum.repos.d/protonvpn.repo
+          [protonvpn-fedora-stable]
+          name=ProtonVPN Fedora Stable
+          baseurl=https://repo.protonvpn.com/fedora-44-stable/
+          enabled=1
+          gpgcheck=0
+          EOF
+          
+          # Upstream'deki en son sürümü bul
+          UPSTREAM_VERSION=$(dnf repoquery --qf "%{version}" proton-vpn-gnome-desktop | sort -V | tail -n 1)
+          
+          # Yereldeki son paketlenmiş sürümü oku (dosya yoksa 0 kabul et)
+          LOCAL_VERSION=$(cat VERSION 2>/dev/null || echo "0")
+          
+          echo "Upstream Version: $UPSTREAM_VERSION"
+          echo "Local Version: $LOCAL_VERSION"
+          
+          # Karşılaştırma yap
+          if [ "$UPSTREAM_VERSION" != "$LOCAL_VERSION" ] && [ -n "$UPSTREAM_VERSION" ]; then
+            echo "Yeni sürüm yayında! İkinci aşamaya geçiliyor..."
+            echo "new_version_found=true" >> $GITHUB_OUTPUT
+          else
+            echo "Yeni güncelleme yok. İş akışı burada sonlandırılıyor."
+            echo "new_version_found=false" >> $GITHUB_OUTPUT
+          fi
+
+  # 2. ve 3. AŞAMA: İndirme, Paketleme ve COPR'a Gönderme (Sadece yeni sürüm varsa çalışır)
+  build-and-deploy:
+    needs: check-update
+    if: needs.check-update.outputs.new_version_found == 'true'
     runs-on: ubuntu-latest
     container:
       image: fedora:44
@@ -48,10 +91,14 @@ jobs:
           EOF
           chmod 600 ~/.config/copr
 
-      - name: Run Orchestrator (Version Bump, Fallback Loop, COPR Build)
+      - name: Run Orchestrator (Fetch, Repackage, COPR Build)
         run: |
           chmod +x scripts/orchestrator.py
           python3 scripts/orchestrator.py
+          
+          # Başarılı derlemeden sonra yeni sürümü VERSION dosyasına kaydet
+          UPSTREAM_VERSION=$(dnf repoquery --disablerepo="*" --enablerepo="protonvpn-fedora-stable" --qf "%{version}" proton-vpn-gnome-desktop | sort -V | tail -n 1)
+          echo "$UPSTREAM_VERSION" > VERSION
 
       - name: Commit Updated Version, Release and Specs
         run: |
@@ -61,14 +108,13 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           
-          # İndirilen binary rpm'leri hariç tut, yalnızca spec ve takip dosyalarını ekle
           git add VERSION RELEASE_NUM specs/*.spec
           
           if git diff --staged --quiet; then
-            echo "No changes to commit."
+            echo "Değişiklik yok."
           else
             VERSION_VAL=$(cat VERSION)
-            RELEASE_VAL=$(cat RELEASE_NUM)
+            RELEASE_VAL=$(cat RELEASE_NUM 2>/dev/null || echo "1")
             git commit -m "Auto-bump: ProtonVPN to ${VERSION_VAL}-${RELEASE_VAL} [skip ci]"
             git push origin HEAD:${{ github.ref_name }}
           fi
