@@ -6,7 +6,7 @@
 %define _missing_doc_files_terminate_build 0
 
 Name:           python3-proton-vpn-local-agent
-Version:        0.2.0
+Version:        1.6.3
 Release:        1%{?dist}
 Summary:        Proton VPN Local Agent Library
 License:        GPL-3.0-or-later

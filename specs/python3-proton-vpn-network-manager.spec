@@ -6,7 +6,7 @@
 %define _missing_doc_files_terminate_build 0
 
 Name:           python3-proton-vpn-network-manager
-Version:        0.12.0
+Version:        0.10.2
 Release:        1%{?dist}
 Summary:        Proton VPN NetworkManager Integration Library
 License:        GPL-3.0-or-later

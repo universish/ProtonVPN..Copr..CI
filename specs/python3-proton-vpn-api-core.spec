@@ -6,7 +6,7 @@
 %define _missing_doc_files_terminate_build 0
 
 Name:           python3-proton-vpn-api-core
-Version:        5.8.3
+Version:        5.8.11
 Release:        1%{?dist}
 Summary:        Proton VPN Core API Library
 License:        GPL-3.0-or-later
