@@ -314,5 +314,5 @@ By maintaining an automated, continuous, and auditable downstream packaging pipe
 ---
 
 # License
-* This packaging automation is provided under the [MIT License](https://www.google.com/search?q=https%3A%2F%2Fgithub.com%2Funiversish%2FProtonVPN..Copr..CI%2Fblob%2Fmain%2FLICENSE).
+* This packaging automation is provided under the [MIT License](https://github.com/universish/ProtonVPN..Copr..CI/blob/main/LICENSE).
 * Proton VPN software components retain their original upstream licenses (GPL-3.0-or-later).
