@@ -39,7 +39,6 @@ jobs:
             python3-proton-keyring-linux \
             python3-proton-vpn-network-manager \
             python3-proton-vpn-local-agent \
-            python3-proton-vpn-lib \
             python3-proton-vpn-api-core \
             proton-vpn-daemon \
             proton-vpn-cli \
