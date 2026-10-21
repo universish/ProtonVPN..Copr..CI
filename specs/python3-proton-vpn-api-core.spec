@@ -7,17 +7,24 @@
 
 Name:           python3-proton-vpn-api-core
 Version:        5.8.11
-Release:        1%{?dist}
+Release:        100%{?dist}
 Summary:        Proton VPN Core API Library
 License:        GPL-3.0-or-later
 URL:            https://protonvpn.com/
+AutoReq:        no
 
 Source0:        python3-proton-vpn-api-core-upstream.rpm
 
 BuildRequires:  cpio
 BuildRequires:  rpm-build
+
 Requires:       python3
 Requires:       python3-proton-core
+Requires:       python3-proton-vpn-local-agent
+Requires:       python3-proton-keyring-linux
+
+Provides:       python3dist(proton-vpn-api-core) = %{version}
+Provides:       python3.14dist(proton-vpn-api-core) = %{version}
 
 %description
 Core API and session manager for Proton VPN.
