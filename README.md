@@ -1,4 +1,4 @@
-<div align="center">
+&lt;div align=&quot;center&quot;&gt;
 
 # 🛡️ Proton VPN for Fedora
 ### ⚡ Automated Downstream COPR Packaging CI/CD Pipeline ⚡
@@ -11,23 +11,23 @@
 
 <br/>
 
-<a href="https://github.com/universish/ProtonVPN..Copr..CI/actions">
-  <img src="https://img.shields.io/github/actions/workflow/status/universish/ProtonVPN..Copr..CI/protonvpn-copr-ci.yml?style=flat-square&logo=githubactions&logoColor=white&label=CI%2FCD%20Builder" alt="CI/CD Status">
-</a>
-<a href="https://copr.fedorainfracloud.org/coprs/universish/ProtonVPN..for..bye..DPI..and..Get..Lost..Fascism/">
-  <img src="https://img.shields.io/badge/Fedora%20COPR-Active%20Repo-51A2DA?style=flat-square&logo=fedora&logoColor=white" alt="Fedora COPR">
-</a>
-<a href="https://copr.fedorainfracloud.org/coprs/universish/ProtonVPN..for..bye..DPI..and..Get..Lost..Fascism/">
-  <img src="https://img.shields.io/badge/Platform-Fedora%2044%20%7C%20Rawhide-294172?style=flat-square&logo=fedora&logoColor=white" alt="Platform">
-</a>
-<a href="https://copr.fedorainfracloud.org/coprs/universish/ProtonVPN..for..bye..DPI..and..Get..Lost..Fascism/">
-  <img src="https://img.shields.io/badge/Arch-x86__64%20%7C%20aarch64-2d333b?style=flat-square&logo=linux&logoColor=white" alt="Architectures">
-</a>
-<a href="https://protonvpn.com/">
-  <img src="https://img.shields.io/badge/Anti--DPI-Bypass%20Enforced-6d4aff?style=flat-square&logo=protonvpn&logoColor=white" alt="Anti-DPI">
-</a>
+&lt;a href=&quot;https://github.com/universish/ProtonVPN..Copr..CI/actions&quot;&gt;
+  &lt;img src=&quot;https://img.shields.io/github/actions/workflow/status/universish/ProtonVPN..Copr..CI/protonvpn-copr-ci.yml?style=flat-square&amp;logo=githubactions&amp;logoColor=white&amp;label=CI%2FCD%20Builder&quot; alt=&quot;CI/CD Status&quot;&gt;
+&lt;/a&gt;
+&lt;a href=&quot;https://copr.fedorainfracloud.org/coprs/universish/ProtonVPN..for..bye..DPI..and..Get..Lost..Fascism/&quot;&gt;
+  &lt;img src=&quot;https://img.shields.io/badge/Fedora%20COPR-Active%20Repo-51A2DA?style=flat-square&amp;logo=fedora&amp;logoColor=white&quot; alt=&quot;Fedora COPR&quot;&gt;
+&lt;/a&gt;
+&lt;a href=&quot;https://copr.fedorainfracloud.org/coprs/universish/ProtonVPN..for..bye..DPI..and..Get..Lost..Fascism/&quot;&gt;
+  &lt;img src=&quot;https://img.shields.io/badge/Platform-Fedora%2044%20%7C%20Rawhide-294172?style=flat-square&amp;logo=fedora&amp;logoColor=white&quot; alt=&quot;Platform&quot;&gt;
+&lt;/a&gt;
+&lt;a href=&quot;https://copr.fedorainfracloud.org/coprs/universish/ProtonVPN..for..bye..DPI..and..Get..Lost..Fascism/&quot;&gt;
+  &lt;img src=&quot;https://img.shields.io/badge/Arch-x86__64%20%7C%20aarch64-2d333b?style=flat-square&amp;logo=linux&amp;logoColor=white&quot; alt=&quot;Architectures&quot;&gt;
+&lt;/a&gt;
+&lt;a href=&quot;https://protonvpn.com/&quot;&gt;
+  &lt;img src=&quot;https://img.shields.io/badge/Anti--DPI-Bypass%20Enforced-6d4aff?style=flat-square&amp;logo=protonvpn&amp;logoColor=white&quot; alt=&quot;Anti-DPI&quot;&gt;
+&lt;/a&gt;
 
-</div>
+&lt;/div&gt;
 
 ---
 
@@ -45,13 +45,22 @@ Designed to eliminate DPI blocks, enforce strict systemd-resolved DNS privacy, a
 
 ---
 
-## Features
+## Packaged Components & Dependency Tree
 
-- **Native Package Identity:** Retains exact upstream package naming (`proton-vpn-gnome-desktop`, `protonvpn-stable-release`, `proton-vpn-cli`).
-- **Fully Automated CI/CD:** Runs twice daily (before lunch and before end of workday, Swedish Time / CET/CEST).
-- **Auto Version Bump & Sequential Release Tagging:** Automatically parses upstream repositories for new releases. If version `4.4.4` receives multiple builds, releases increment automatically (`4.4.4-1`, `4.4.4-2`).
-- **Cascade Fallback Builds:** If a build fails against strict upstream spec files on COPR, the workflow automatically cascades through secondary and tertiary compatibility specs until a build succeeds.
-- **Zero-Touch GNOME Integration:** Automatically pulls in and system-wide enables `gnome-shell-extension-appindicator` via a compiled GSchema override, so tray icons work immediately without manual user configuration.
+The repository automates the complete packaging chain from low-level authentication and routing libraries to the desktop GUI:
+
+| Package | Type | Role |
+| :--- | :--- | :--- |
+| `protonvpn-stable-release` | Config | OpenPGP signing keys and local repository configuration |
+| `python3-proton-core` | Core API | User authentication, session management, and FIDO2/2FA support |
+| `python3-proton-keyring-linux` | Secrets | Hardware/desktop keyring integration (`gnome-keyring`, `libsecret`) |
+| `python3-proton-vpn-network-manager` | Network | NetworkManager connection dispatcher and split-DNS controller |
+| `python3-proton-vpn-local-agent` | Daemon/IPC | Modern IPC transport, wireguard tunnels, and traffic routing |
+| `python3-proton-vpn-api-core` | Core VPN | VPN session orchestration, server list resolution, feature flags |
+| `proton-vpn-daemon` | Service | Background system daemon with split-DNS leak protection |
+| `proton-vpn-cli` | CLI Client | Standalone command-line client for headless and terminal usage |
+| `proton-vpn-gtk-app` | GUI Client | Full GTK3 desktop interface |
+| `proton-vpn-gnome-desktop` | Integration | GNOME AppIndicator tray auto-activation via GSchema override |
 
 ---
 
@@ -59,109 +68,136 @@ Designed to eliminate DPI blocks, enforce strict systemd-resolved DNS privacy, a
 
 ### 1. Enable the COPR Repository
 
-Run the following command to enable this repository:
+Run the following command to enable this repository on your Fedora system:
 
 ```bash
-sudo dnf copr enable universish/ProtonVPN..for..bye..DPI..and..Get..Lost..Fascism
+sudo dnf copr enable -y universish/ProtonVPN..for..bye..DPI..and..Get..Lost..Fascism
 ```
+
+> **Önemli (Fedora Resmi Depolarındaki Eski Paketlerle Çakışmayı Önleme):**  
+> Fedora'nın varsayılan depolarında Proton'un çok eski sürümleri (`0.3.3` ve `0.36.6`) yer almaktadır. DNF paket yöneticisinin daima güncel COPR paketlerini tercih etmesi için depoya öncelik (priority) verin:
+> ```bash
+> sudo dnf config-manager addrepo --set-opts="copr:copr.fedorainfracloud.org:universish:ProtonVPN..for..bye..DPI..and..Get..Lost..Fascism.priority=10"
+> ```
+
+---
 
 ### 2. Install Proton VPN
 
-### 2.1. For GNOME and Desktop Environments (GUI):
-
+#### 2.1. Complete Desktop Installation (GUI + CLI + Daemon):
+```bash
+sudo dnf install -y \
+  proton-vpn-gnome-desktop \
+  proton-vpn-gtk-app \
+  proton-vpn-cli \
+  proton-vpn-daemon \
+  python3-proton-core \
+  python3-proton-vpn-api-core \
+  python3-proton-vpn-local-agent \
+  python3-proton-vpn-network-manager \
+  python3-proton-keyring-linux
 ```
-sudo dnf install proton-vpn-gnome-desktop
+
+#### 2.2. Headless / Server / CLI Only Installation:
+```bash
+sudo dnf install -y \
+  proton-vpn-cli \
+  proton-vpn-daemon \
+  python3-proton-core \
+  python3-proton-vpn-api-core \
+  python3-proton-vpn-local-agent \
+  python3-proton-vpn-network-manager \
+  python3-proton-keyring-linux
 ```
 
-Note: This automatically installs and configures `libappindicator-gtk3`, `gnome-shell-extension-appindicator`, `gnome-extensions-app`, `systemd-resolved` and `gnome-keyring`.
+---
 
-### 2.2. For Headless / Terminal Environments (CLI):
+### 3. Running & Managing the Service
 
+#### 3.1. Start the Background Daemon:
+```bash
+sudo systemctl enable --now proton-vpn-daemon.service
 ```
-sudo dnf install proton-vpn-cli
-```
 
-**Note:** This automatically pulls in `NetworkManager` and `gnome-keyring` for headless credential management.
-
-### 2.3. Running the Application
-
-### 2.3.1. GUI Application:
-
+#### 3.2. Launch the Graphical Application (GUI):
 Launch it from your desktop application grid or via terminal:
-
-```
+```bash
 protonvpn-app
 ```
+*(On GNOME sessions, restart your session or log out once if the tray icon does not appear immediately after the first install).*
 
-(On GNOME sessions, restart your session or log out once if the tray icon does not appear immediately after the first install).
-
-### CLI Application:
-
-Log in to your account and connect:
-
+#### 3.3. Command Line Client (CLI):
+Log in and connect:
 ```bash
 protonvpn signin
 protonvpn connect
 ```
-
 Check status:
-
-```
+```bash
 protonvpn status
 ```
-
 Disconnect:
-
-```
+```bash
 protonvpn disconnect
 ```
 
-### 2.4. Uninstallation
+---
 
-To completely remove Proton VPN, its configurations, and the repository release package:
+## Troubleshooting & Maintenance
 
-```
-sudo dnf remove proton-vpn-gnome-desktop protonvpn-stable-release
-```
-
-To remove the CLI tool:
-
-```
-sudo dnf remove proton-vpn-cli
-```
-
-To disable the COPR repository:
-
-```
-sudo dnf copr disable universish/ProtonVPN..for..bye..DPI..and..Get..Lost..Fascism
-```
-
-### 2.5. Updating Packages
-
-To bypass local metadata caching and immediately pull new builds or packaging revisions (e.g., `<version>-1` to `<version>-2`):
-
-**2.5.1. `upgrade --refresh`:**
+### A. Paket Çakışması ve "nothing provides libm.so.6" / Eski Fedora Paketleri Sorunu
+Eğer kurulum sırasında DNF Fedora'nın eski paketlerine (`python3-proton-core-0.3.3` veya `python3-proton-vpn-api-core-0.36.6`) dönmeye çalışır veya çakışma hatası verirse:
 
 ```bash
-sudo dnf upgrade --refresh "proton-vpn*" "protonvpn*"
+# 1. Kurulu olan tüm eski ve uyumsuz proton paketlerini kaldırın:
+sudo dnf remove -y "proton-vpn*" "python3-proton*" "protonvpn*"
+
+# 2. DNF önbelleğini tamamen temizleyin ve tazeleyin:
+sudo dnf clean all
+sudo dnf makecache --refresh
+
+# 3. Fedora'nın eski paketlerini dışlayarak doğrudan COPR'dan zorunlu kurun:
+sudo dnf install -y \
+  --disablerepo="fedora,updates" \
+  --enablerepo="copr:copr.fedorainfracloud.org:universish:*" \
+  proton-vpn-gnome-desktop \
+  proton-vpn-gtk-app \
+  proton-vpn-cli \
+  proton-vpn-daemon \
+  python3-proton-core \
+  python3-proton-vpn-api-core \
+  python3-proton-vpn-local-agent \
+  python3-proton-vpn-network-manager \
+  python3-proton-keyring-linux
 ```
 
-**2.5.2. If that doesn't work, follow these steps:**
+### B. Paketleri Güncelleme (Upgrade & Refresh)
+COPR deponuzda yeni bir sürüm derlendiğinde yerel önbelleği atlayıp güncellemeleri çekmek için:
 
-- Flush the cache:
-```
-sudo dnf clean all && sudo dnf makecache
-```
-- Install the CLI tool (it now comes directly from COPR):
-```
-sudo dnf install proton-vpn-cli
-```
-- Update or install the GUI application along with all its dependencies:
-```
-sudo dnf install proton-vpn-gnome-desktop proton-vpn-gtk-app
+```bash
+# Önbelleği yenileyerek güncelleme yapın:
+sudo dnf upgrade --refresh "proton-vpn*" "python3-proton*" "protonvpn*"
 ```
 
-----
+Eğer önbellek takılırsa:
+```bash
+sudo dnf clean all
+sudo dnf makecache --refresh
+sudo dnf upgrade -y
+```
+
+### C. Tamamen Kaldırma (Uninstallation)
+Uygulamayı, yapılandırmalarını ve COPR deposunu sistemden tamamen temizlemek için:
+
+```bash
+# Tüm paketleri kaldırın:
+sudo dnf remove -y "proton-vpn*" "python3-proton*" "protonvpn*"
+
+# COPR deposunu devre dışı bırakın:
+sudo dnf copr disable -y universish/ProtonVPN..for..bye..DPI..and..Get..Lost..Fascism
+```
+
+---
 
 # Target Platforms & Architectures
 
@@ -170,7 +206,7 @@ sudo dnf install proton-vpn-gnome-desktop proton-vpn-gtk-app
 | **Fedora 44** | `x86_64`, `aarch64` | GNOME Desktop, KDE Plasma, CLI |
 | **Fedora Rawhide** | `x86_64`, `aarch64` | GNOME Desktop, Generic, CLI |
 
-----
+---
 
 ## Technical Transparency & RPM-to-RPM Pipeline
 
@@ -180,13 +216,10 @@ This repository acts as an automated, transparent downstream packager. Rather th
 
 ### Pipeline Overview
 
-
 ```
-
 [Official Proton Repository]
 │
 ▼
-
 1. Fetch Official RPM & Checksum Validation
 │
 ▼
@@ -204,7 +237,6 @@ This repository acts as an automated, transparent downstream packager. Rather th
 │
 ▼
 [Signed Fedora COPR Binary RPMs]
-
 ```
 
 ---
@@ -221,15 +253,11 @@ Inside an isolated container, the downloaded package is unpacked using standard 
 
 ```bash
 rpm2cpio proton-vpn-gnome-desktop-%{version}.%{_arch}.rpm | cpio -idmv
-
 ```
 
 * **Zero Binary Tampering:** The application binaries, Python bytecode, cryptographic handling, WireGuard/OpenVPN integration, and authentication tokens are kept strictly unmodified. The core executable code remains byte-for-byte identical to Proton Technologies' official release.
 
 #### 3. Integration & Dependency Hardening
-
-Upstream packages often assume manual user intervention or minimal desktop assumptions. This package bridges those gaps declaratively at the RPM specification level:
-
 * **DNS Leak Protection:** Adds an explicit `Requires: systemd-resolved` directive, ensuring Fedora's modern split-DNS architecture operates correctly with Proton's routing policies out of the box.
 * **Credential Security:** Enforces `Requires: gnome-keyring` and `Requires: libsecret` to ensure secure hardware-backed or encrypted storage for user authentication tokens.
 * **Network Infrastructure:** Links against `NetworkManager` and `NetworkManager-libnm` to prevent connection drops across desktop environments.
@@ -237,14 +265,10 @@ Upstream packages often assume manual user intervention or minimal desktop assum
 ```ini
 [org.gnome.shell]
 enabled-extensions=['appindicatorsupport@rgcjonas.gmail.com']
-
 ```
-
-
 The `%post` and `%postun` scriptlets invoke `glib-compile-schemas` during package installation, instantly enabling tray visibility without requiring manual GNOME Extensions app tinkering.
 
 #### 4. Clean SRPM Re-bundling & COPR Mock Isolation
-
 * The enriched payload is wrapped into an RPM SPEC and packaged into a deterministic Source RPM (`.src.rpm`).
 * The SRPM is dispatched to the **Fedora COPR build system**.
 * COPR builds the final binary RPMs in clean, network-isolated mock chroots managed by the Fedora Infrastructure team.
@@ -253,12 +277,11 @@ The `%post` and `%postun` scriptlets invoke `glib-compile-schemas` during packag
 ---
 
 ### Security Guarantees
-
 * **Auditable & Open-Source:** All packaging specs, fallback definitions, and build scripts are fully open source in this repository.
 * **No Secret Injection / Backdoors:** CI runners never modify application logic, endpoints, or TLS verification routines.
-* **Verifiable Builds:** You can inspect the exact SRPM and build log for every release directly on the [Fedora COPR Build History](https://www.google.com/search?q=https://copr.fedorainfracloud.org/coprs/universish/ProtonVPN..for..bye..DPI..and..Get..Lost..Fascism/builds/).
+* **Verifiable Builds:** You can inspect the exact SRPM and build log for every release directly on the [Fedora COPR Build History](https://www.google.com/search?q=https%3A%2F%2Fcopr.fedorainfracloud.org%2Fcoprs%2Funiversish%2FProtonVPN..for..bye..DPI..and..Get..Lost..Fascism%2Fbuilds%2F).
 
-----
+---
 
 ## Mission & Legal-Normative Basis
 
@@ -282,8 +305,8 @@ By maintaining an automated, continuous, and auditable downstream packaging pipe
 2. **Prevent Routing & DNS Leakage:** Enforce strict split-DNS routing via native `systemd-resolved` integration, rendering ISP-level DNS manipulation ineffective.
 3. **Sustain Digital Self-Defense:** Maintain reproducible access to authenticated, end-to-end encrypted tunnels designed to bypass DPI middleboxes and resist automated packet classification.
 
-----
+---
 
 # License
-* This packaging automation is provided under the [MIT License](https://github.com/universish/ProtonVPN..Copr..CI/blob/main/LICENSE).
+* This packaging automation is provided under the [MIT License](https://www.google.com/search?q=https%3A%2F%2Fgithub.com%2Funiversish%2FProtonVPN..Copr..CI%2Fblob%2Fmain%2FLICENSE).
 * Proton VPN software components retain their original upstream licenses (GPL-3.0-or-later).
