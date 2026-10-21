@@ -35,6 +35,7 @@ jobs:
           
           # Upstream'deki en son sürümü bul
           UPSTREAM_VERSION=$(dnf repoquery --qf "%{version}" proton-vpn-gnome-desktop | sort -V | tail -n 1)
+          UPSTREAM_VERSION=$(dnf repoquery --qf "%{version}" proton-vpn-gtk-app | sort -V | tail -n 1)
           
           # Yereldeki son paketlenmiş sürümü oku (dosya yoksa 0 kabul et)
           LOCAL_VERSION=$(cat VERSION 2>/dev/null || echo "0")
