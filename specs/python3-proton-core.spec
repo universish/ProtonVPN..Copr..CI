@@ -19,6 +19,9 @@ BuildRequires:  cpio
 BuildRequires:  rpm-build
 Requires:       python3
 
+Provides:       python3dist(proton-core) = %{version}
+Provides:       python3.14dist(proton-core) = %{version}
+
 %description
 Proton Core Python Library providing authentication and session APIs.
 
