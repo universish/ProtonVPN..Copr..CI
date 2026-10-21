@@ -5,22 +5,22 @@
 %define _unpackaged_files_terminate_build 0
 %define _missing_doc_files_terminate_build 0
 
-Name:           python3-proton-core
-Version:        0.7.4
+Name:           python3-proton-vpn-api-core
+Version:        5.8.3
 Release:        1%{?dist}
-Summary:        Proton Core Python Library
+Summary:        Proton VPN Core API Library
 License:        GPL-3.0-or-later
 URL:            https://protonvpn.com/
-BuildArch:      noarch
 
-Source0:        python3-proton-core-upstream.rpm
+Source0:        python3-proton-vpn-api-core-upstream.rpm
 
 BuildRequires:  cpio
 BuildRequires:  rpm-build
 Requires:       python3
+Requires:       python3-proton-core
 
 %description
-Proton Core Python Library providing authentication and session APIs.
+Core API and session manager for Proton VPN.
 
 %prep
 %setup -c -T
