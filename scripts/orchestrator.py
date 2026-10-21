@@ -14,7 +14,7 @@ CHROOTS = [
     "fedora-rawhide-x86_64"
 ]
 
-# Bağımlılık zinciri sırası (En alttan en üste doğru)
+# Bağımlılık zinciri sırası
 PACKAGES_TO_PROCESS = [
     ("protonvpn-stable-release", "specs/protonvpn-stable-release.spec"),
     ("python3-proton-core", "specs/python3-proton-core.spec"),
@@ -27,7 +27,6 @@ PACKAGES_TO_PROCESS = [
         "python3-proton-vpn-local-agent",
         "specs/python3-proton-vpn-local-agent.spec",
     ),
-    ("python3-proton-vpn-lib", "specs/python3-proton-vpn-lib.spec"),
     ("python3-proton-vpn-api-core", "specs/python3-proton-vpn-api-core.spec"),
     ("proton-vpn-daemon", "specs/proton-vpn-daemon.spec"),
     ("proton-vpn-cli", "specs/proton-vpn-cli.spec"),
