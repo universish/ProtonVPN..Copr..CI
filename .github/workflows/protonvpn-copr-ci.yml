@@ -108,7 +108,8 @@ jobs:
           
           # Başarılı derlemeden sonra yeni sürümü VERSION dosyasına kaydet
           UPSTREAM_VERSION=$(dnf repoquery --disablerepo="*" --enablerepo="protonvpn-fedora-stable" --qf "%{version}" proton-vpn-gnome-desktop | sort -V | tail -n 1)
-          echo "$UPSTREAM_VERSION" > VERSION
+          # Başarılı derlemeden sonra yeni parmak izini VERSION dosyasına kaydet
+          echo "${{ steps.compare.outputs.upstream_hash }}" > VERSION
 
       - name: Commit Updated Version, Release and Specs
         run: |
