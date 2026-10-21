@@ -76,8 +76,8 @@ Run the following command to enable this repository on your Fedora system:
 sudo dnf copr enable -y universish/ProtonVPN..for..bye..DPI..and..Get..Lost..Fascism
 ```
 
-> **Önemli (Fedora Resmi Depolarındaki Eski Paketlerle Çakışmayı Önleme):**  
-> Fedora'nın varsayılan depolarında Proton'un çok eski sürümleri (`0.3.3` ve `0.36.6`) yer almaktadır. DNF paket yöneticisinin daima güncel COPR paketlerini tercih etmesi için depoya öncelik (priority) verin:
+> **Important (Avoiding Conflicts with Legacy Packages in the Official Fedora Repositories):**  
+> Fedora’s default repositories contain very old versions of Proton (`0.3.3` and `0.36.6`). Set the repository priority so that the DNF package manager always prefers the latest COPR packages:
 > ```bash
 > sudo dnf config-manager addrepo --set-opts="copr:copr.fedorainfracloud.org:universish:ProtonVPN..for..bye..DPI..and..Get..Lost..Fascism.priority=10"
 > ```
@@ -147,18 +147,21 @@ protonvpn disconnect
 
 ## Troubleshooting & Maintenance
 
-### A. Paket Çakışması ve "nothing provides libm.so.6" / Eski Fedora Paketleri Sorunu
-Eğer kurulum sırasında DNF Fedora'nın eski paketlerine (`python3-proton-core-0.3.3` veya `python3-proton-vpn-api-core-0.36.6`) dönmeye çalışır veya çakışma hatası verirse:
+### A. Package Conflict and “nothing provides libm.so.6” / Issue with Legacy Fedora Packages
+If during installation, DNF attempts to fall back to older Fedora packages (`python3-proton-core-0.3.3` or `python3-proton-vpn-api-core-0.36.6`) or returns a conflict error:
 
+
+1. Remove all installed old and incompatible Proton packages:
 ```bash
-# 1. Kurulu olan tüm eski ve uyumsuz proton paketlerini kaldırın:
-sudo dnf remove -y "proton-vpn*" "python3-proton*" "protonvpn*"
-
-# 2. DNF önbelleğini tamamen temizleyin ve tazeleyin:
+sudo dnf remove -y “proton-vpn*” “python3-proton*” “protonvpn*”
+```
+2. Completely clear and refresh the DNF cache:
+```
 sudo dnf clean all
 sudo dnf makecache --refresh
-
-# 3. Fedora'nın eski paketlerini dışlayarak doğrudan COPR'dan zorunlu kurun:
+```
+3. Force installation directly from COPR, excluding Fedora’s legacy packages:
+```
 sudo dnf install -y \
   --disablerepo="fedora,updates" \
   --enablerepo="copr:copr.fedorainfracloud.org:universish:*" \
@@ -173,29 +176,30 @@ sudo dnf install -y \
   python3-proton-keyring-linux
 ```
 
-### B. Paketleri Güncelleme (Upgrade & Refresh)
-COPR deponuzda yeni bir sürüm derlendiğinde yerel önbelleği atlayıp güncellemeleri çekmek için:
-
+### B. Upgrade & Refresh
+When a new version is built in your COPR repository, to bypass the local cache and fetch the updates:
+*  Update by refreshing the cache:
 ```bash
-# Önbelleği yenileyerek güncelleme yapın:
 sudo dnf upgrade --refresh "proton-vpn*" "python3-proton*" "protonvpn*"
 ```
 
-Eğer önbellek takılırsa:
+* If the cache gets stuck:
 ```bash
 sudo dnf clean all
 sudo dnf makecache --refresh
 sudo dnf upgrade -y
 ```
 
-### C. Tamamen Kaldırma (Uninstallation)
-Uygulamayı, yapılandırmalarını ve COPR deposunu sistemden tamamen temizlemek için:
+### C. Uninstallation
+To completely remove the application, its configurations, and the COPR repository from the system:
 
+* Remove all packages:
 ```bash
-# Tüm paketleri kaldırın:
 sudo dnf remove -y "proton-vpn*" "python3-proton*" "protonvpn*"
+```
 
-# COPR deposunu devre dışı bırakın:
+* Disable the COPR repo:
+```
 sudo dnf copr disable -y universish/ProtonVPN..for..bye..DPI..and..Get..Lost..Fascism
 ```
 
