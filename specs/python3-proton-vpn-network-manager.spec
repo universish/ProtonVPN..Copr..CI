@@ -7,7 +7,7 @@
 
 Name:           python3-proton-vpn-network-manager
 Version:        0.10.2
-Release:        1%{?dist}
+Release:        100%{?dist}
 Summary:        Proton VPN NetworkManager Integration Library
 License:        GPL-3.0-or-later
 URL:            https://protonvpn.com/
@@ -20,6 +20,9 @@ BuildRequires:  rpm-build
 
 Requires:       python3
 Requires:       NetworkManager
+
+Provides:       python3dist(proton-vpn-network-manager) = %{version}
+Provides:       python3.14dist(proton-vpn-network-manager) = %{version}
 
 %description
 Python module for managing network connections and DNS via NetworkManager for Proton VPN.
