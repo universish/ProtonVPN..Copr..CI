@@ -20,6 +20,9 @@ BuildRequires:  rpm-build
 
 Requires:       proton-vpn-daemon
 Requires:       python3-gobject
+Requires:       python3-proton-core
+Requires:       python3-proton-vpn-api-core
+Requires:       python3-proton-keyring-linux
 Requires:       gtk3
 Requires:       libsecret
 
