@@ -6,7 +6,7 @@
 %define _missing_doc_files_terminate_build 0
 
 Name:           proton-vpn-daemon
-Version:        0.13.8
+Version:        0.14.1
 Release:        1%{?dist}
 Summary:        Proton VPN Core Daemon Service
 License:        GPL-3.0-or-later
