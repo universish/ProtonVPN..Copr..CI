@@ -6,7 +6,7 @@
 %define _missing_doc_files_terminate_build 0
 
 Name:           proton-vpn-cli
-Version:        1.1.0
+Version:        1.1.1
 Release:        1%{?dist}
 Summary:        Proton VPN Command Line Interface
 License:        GPL-3.0-or-later
